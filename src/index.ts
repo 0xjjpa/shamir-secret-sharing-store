@@ -82,43 +82,6 @@ export async function decryptAndCombineWithPassword(password: string, shares: Sh
 }
 
 
-async function decryptShare(share: Share, password: string): Promise<string> {
-  const passwordKey = await window.crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(password),
-    { name: share.crypto.kdf },
-    false,
-    ["deriveKey"]
-  );
-
-  const derivedKey = await window.crypto.subtle.deriveKey(
-    {
-      name: share.crypto.kdf,
-      salt: new TextEncoder().encode(share.crypto.kdfparams.salt),
-      iterations: share.crypto.kdfparams.iterations,
-      hash: share.crypto.kdfparams.hash
-    },
-    passwordKey,
-    {
-      name: share.crypto.cipherparams.name,
-      length: share.crypto.cipherparams.length
-    },
-    true,
-    ["decrypt"]
-  );
-
-  const decryptedContent = await window.crypto.subtle.decrypt(
-    {
-      name: share.crypto.cipherparams.name,
-      iv: new Uint8Array(share.crypto.cipherparams.iv.split(',').map(byte => +byte))
-    },
-    derivedKey,
-    new Uint8Array(share.crypto.ciphertext.split(',').map(byte => +byte))
-  );
-
-  return new TextDecoder().decode(decryptedContent);
-}
-
 async function encryptShare(originalShare: string, password: string, total: number, threshold: number, secretHash: string): Promise<Share> {
   const share_sha512 = await computeSHA512(originalShare);
 
@@ -196,7 +159,7 @@ async function encryptShare(originalShare: string, password: string, total: numb
 }
 
 export async function splitWithPasswordAsStore(secret: string, password: string, total: number, threshold: number): Promise<Share[]> {
-  const secretAsUint8Array = toUint8Array(secret);
+  const secretAsUint8Array = new TextEncoder().encode(secret);
   const shares = await split(secretAsUint8Array, total, threshold);
 
   // Compute hashes
@@ -211,7 +174,6 @@ export async function splitWithPasswordAsStore(secret: string, password: string,
 
   return encryptedShares;
 }
-const toUint8Array = (data: string) => new TextEncoder().encode(data);
 
 function bufferToHex(buffer: Uint8Array): string {
   return Array.from(buffer)
