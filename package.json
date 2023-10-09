@@ -4,14 +4,19 @@
   "description": "TypeScript library to generate metadata-rich Shamir's Secret Share stores for data transfer.",
   "main": "index.js",
   "scripts": {
-    "start": "npx ts-node src/index.ts",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "start:demo": "npx parcel example/index.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "ts-node": "^10.9.1",
+    "parcel": "^2.9.3",
     "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "shamir-secret-sharing": "^0.0.3"
   }
 }
