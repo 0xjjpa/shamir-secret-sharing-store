@@ -31,7 +31,6 @@ export type Share = {
 };
 
 async function decryptShareWithPassword(share: Share, password: string): Promise<Uint8Array> {
-  // Decrypting the share using the logic from your original decryptShare function
   const passwordKey = await window.crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(password),
@@ -63,25 +62,10 @@ async function decryptShareWithPassword(share: Share, password: string): Promise
     },
     derivedKey,
     hexToBuffer(share.crypto.ciphertext)
-    // new Uint8Array(share.crypto.ciphertext.split(',').map(byte => +byte))
   );
 
   return new Uint8Array(decryptedContent);
 }
-
-export async function decryptAndCombineWithPassword(password: string, shares: Share[]): Promise<string> {
-  // Decrypt all shares
-  const decryptedShares = [];
-  for (const share of shares) {
-    decryptedShares.push(await decryptShareWithPassword(share, password));
-  }
-
-  // Combine the decrypted shares using Shamir's Secret Sharing
-  const combinedSecretBuffer = await combine(decryptedShares);
-
-  return new TextDecoder().decode(combinedSecretBuffer);
-}
-
 
 async function encryptShare(originalShare: Uint8Array, password: string, total: number, threshold: number, secretHash: string): Promise<Share> {
   const share_sha512 = await computeSHA512(originalShare);
@@ -159,23 +143,6 @@ async function encryptShare(originalShare: Uint8Array, password: string, total: 
   return encryptedShare;
 }
 
-export async function splitWithPasswordAsStore(secret: string, password: string, total: number, threshold: number): Promise<Share[]> {
-  const secretAsUint8Array = new TextEncoder().encode(secret);
-  const shares = await split(secretAsUint8Array, total, threshold);
-
-  // Compute hashes
-  const secret_sha512 = await computeSHA512(secretAsUint8Array);
-
-  // Encrypt each share and populate necessary metadata
-  const encryptedShares: Share[] = [];
-  for (let share of shares) {
-    const encryptedShare = await encryptShare(share, password, total, threshold, secret_sha512);
-    encryptedShares.push(encryptedShare);
-  }
-
-  return encryptedShares;
-}
-
 function bufferToHex(buffer: Uint8Array): string {
   return Array.from(buffer)
     .map(byte => byte.toString(16).padStart(2, '0'))
@@ -205,3 +172,28 @@ async function computeSHA512(data: Uint8Array): Promise<string> {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+export async function splitWithPasswordAsStore(secret: string, password: string, total: number, threshold: number): Promise<Share[]> {
+  const secretAsUint8Array = new TextEncoder().encode(secret);
+  const shares = await split(secretAsUint8Array, total, threshold);
+
+  const secret_sha512 = await computeSHA512(secretAsUint8Array);
+
+  const encryptedShares: Share[] = [];
+  for (let share of shares) {
+    const encryptedShare = await encryptShare(share, password, total, threshold, secret_sha512);
+    encryptedShares.push(encryptedShare);
+  }
+
+  return encryptedShares;
+}
+
+export async function decryptAndCombineWithPassword(password: string, shares: Share[]): Promise<string> {
+  const decryptedShares = [];
+  for (const share of shares) {
+    decryptedShares.push(await decryptShareWithPassword(share, password));
+  }
+
+  const combinedSecretBuffer = await combine(decryptedShares);
+
+  return new TextDecoder().decode(combinedSecretBuffer);
+}
