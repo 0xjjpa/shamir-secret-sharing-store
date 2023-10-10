@@ -22,7 +22,6 @@ export type Share = {
     total: number;
     threshold: number;
     encrypted: boolean;
-    contents: string;
     share_sha512: string;
     secret_sha512: string;
   };
@@ -135,7 +134,6 @@ async function encryptShare(
       total,
       threshold,
       encrypted: true,
-      contents: bufferToHex(new Uint8Array(encryptedContent)),
       share_sha512: share_sha512,
       secret_sha512: secretHash,
     },

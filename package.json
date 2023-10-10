@@ -1,6 +1,6 @@
 {
   "name": "shamir-secret-sharing-store",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "TypeScript library to generate metadata-rich Shamir's Secret Share stores for data transfer.",
   "main": "index.js",
   "keywords": [

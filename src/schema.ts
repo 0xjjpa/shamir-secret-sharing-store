@@ -23,7 +23,6 @@ export const shareSchema = z.object({
     total: z.number(),
     threshold: z.number(),
     encrypted: z.boolean(),
-    contents: z.string(),
     share_sha512: z.string(),
     secret_sha512: z.string(),
   }),

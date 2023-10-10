@@ -6,6 +6,57 @@ TypeScript library to generate metadata-rich Shamir's Secret Share stores for da
 
 Only supported in browser environments.
 
+## Background
+
+Splitting a secret via the Shamir Secret Sharing schema is an extremely useful way to distribute and delegate a secret. However, there's no format for meaningful metadata of a share. This project suggest the introduction of a [keystore](https://goethereumbook.org/keystore/)-like format that can be used to provide meaningful metadata to the share generated, instead of the plain `Buffer`-like representation. In the same way that a traditional crypto private key benefits from being stored into a keystore, a secret share would benefit of metadata describing the data that it's trying to protect without disclosing the actual data.
+
+### Motivation
+
+Although one can argue that the lack of metadata for the secret to encrypt is a feature and not a bug, the storage, operation and usage of blobs of shares can become cumbersome after some time. In short, `080198161f3f4aa4cc91d5a16d7cdf47db3cb3b1b8640457fa3892701a65b665307c` gives you little to no information which can later be used for rotation or maintenance.
+
+From an operational point of view, looking to these sort of strings in isolation will always required an additional piece of information (e.g. a relational table) to be able to piece together the purpose of the secret the share protects. Losing the relational data can be tricky, specially in the context of digital assets, where compliance to AML/KYC laws might require the removal of shares used as backups for restricted individuals.
+
+In other words, if a crypto address is blacklisted by OFAC (or other similar organisations), and a share related to the respective private key controlling this address, it could be argued that the retainer of these backups could be sanctioned by simply storing this share. By adding metadata, we can guarantee plausible deniability and implement checks in place to trigger automatic systems whenever accounts are flagged.
+
+### Schema (Zod)
+
+
+```typescript
+const cryptoParamsSchema = z.object({
+  ciphertext: z.string(),
+  cipherparams: z.object({
+    iv: z.string(),
+    name: z.string(),
+    length: z.number(),
+  }),
+  kdf: z.string(),
+  kdfparams: z.object({
+    salt: z.string(),
+    iterations: z.number(),
+    hash: z.string(),
+  }),
+});
+
+export const shareSchema = z.object({
+  version: z.number(),
+  id: z.string(),
+  share: z.object({
+    total: z.number(),
+    threshold: z.number(),
+    encrypted: z.boolean(),
+    share_sha512: z.string(),
+    secret_sha512: z.string(),
+  }),
+  crypto: cryptoParamsSchema,
+  algorithm: z.string(),
+});
+
+```
+
+### Diagram
+
+![Paper Blockchain 52](https://github.com/privy-io/shamir-secret-sharing/assets/1128312/12c1f650-97de-4693-9d85-10d81a2300b3)
+
 
 ## Usage
 
