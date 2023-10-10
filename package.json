@@ -1,20 +1,53 @@
 {
   "name": "shamir-secret-sharing-store",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "TypeScript library to generate metadata-rich Shamir's Secret Share stores for data transfer.",
   "main": "index.js",
+  "keywords": [
+    "shamir",
+    "secret",
+    "sharing",
+    "threshold",
+    "cryptography",
+    "crypto",
+    "keys",
+    "mnemonic",
+    "typescript",
+    "node",
+    "browser",
+    "web3"
+  ],
   "scripts": {
     "clean": "rimraf index.* schema.* esm",
     "prebuild": "npm run clean",
     "build": "tsc && tsc -p tsconfig.esm.json",
     "lint": "prettier --check 'src/**/*.ts' 'test/**/*.js'",
     "pretest": "npm run build",
-    "test": "jest --testMatch \"**/test/**/*.test.js\""
+    "test": "jest --testMatch \"**/test/**/*.test.js\"",
+    "prepublishOnly": "npm run build"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./esm/index.js",
+      "default": "./index.js"
+    }
+  },
+  "files": [
+    "/*.js",
+    "/*.js.map",
+    "/*.d.ts",
+    "esm",
+    "src"
+  ],
+  "author": "Jose Aguinaga <me@jjperezaguinaga.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0xjjpa/shamir-secret-sharing-store"
+  },
+  "license": "Apache-2.0",
   "devDependencies": {
+    "@jsdevtools/npm-publish": "^2.2.2",
     "@peculiar/webcrypto": "^1.4.3",
     "@types/jest": "^29.5.5",
     "jest": "^29.7.0",
