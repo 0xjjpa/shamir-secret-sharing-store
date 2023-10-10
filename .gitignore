@@ -137,3 +137,6 @@ dist
 /esm/*.js
 /esm/*.js.map
 /example/*.js
+
+# jest
+!jest.config.js
