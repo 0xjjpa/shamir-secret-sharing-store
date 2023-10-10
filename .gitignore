@@ -129,5 +129,11 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# javascript
-*.js
+# compiled from tsc
+/*.d.ts
+/*.js
+/*.js.map
+/esm/*.d.ts
+/esm/*.js
+/esm/*.js.map
+/example/*.js

@@ -31,7 +31,7 @@ export type Share = {
 };
 
 async function decryptShareWithPassword(share: Share, password: string): Promise<Uint8Array> {
-  const passwordKey = await window.crypto.subtle.importKey(
+  const passwordKey = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(password),
     { name: share.crypto.kdf },
@@ -39,7 +39,7 @@ async function decryptShareWithPassword(share: Share, password: string): Promise
     ["deriveKey"]
   );
 
-  const derivedKey = await window.crypto.subtle.deriveKey(
+  const derivedKey = await crypto.subtle.deriveKey(
     {
       name: share.crypto.kdf,
       salt: new TextEncoder().encode(share.crypto.kdfparams.salt),
@@ -55,7 +55,7 @@ async function decryptShareWithPassword(share: Share, password: string): Promise
     ["decrypt"]
   );
 
-  const decryptedContent = await window.crypto.subtle.decrypt(
+  const decryptedContent = await crypto.subtle.decrypt(
     {
       name: share.crypto.cipherparams.name,
       iv: new Uint8Array(share.crypto.cipherparams.iv.split(',').map(byte => +byte))
@@ -77,13 +77,13 @@ async function encryptShare(originalShare: Uint8Array, password: string, total: 
       length: 256
     },
     kdfparams: {
-      salt: window.crypto.getRandomValues(new Uint8Array(16)).toString(),
+      salt: crypto.getRandomValues(new Uint8Array(16)).toString(),
       iterations: 100000,
       hash: "SHA-256"
     }
   };
 
-  const passwordKey = await window.crypto.subtle.importKey(
+  const passwordKey = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(password),
     { name: cryptoConfig.kdf },
@@ -91,7 +91,7 @@ async function encryptShare(originalShare: Uint8Array, password: string, total: 
     ["deriveKey"]
   );
 
-  const derivedKey = await window.crypto.subtle.deriveKey(
+  const derivedKey = await crypto.subtle.deriveKey(
     {
       name: cryptoConfig.kdf,
       salt: new TextEncoder().encode(cryptoConfig.kdfparams.salt),
@@ -107,8 +107,8 @@ async function encryptShare(originalShare: Uint8Array, password: string, total: 
     ["encrypt"]
   );
 
-  const iv = window.crypto.getRandomValues(new Uint8Array(12));
-  const encryptedContent = await window.crypto.subtle.encrypt(
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encryptedContent = await crypto.subtle.encrypt(
     {
       name: cryptoConfig.cipherparams.name,
       iv: iv
